@@ -21,7 +21,7 @@ class PdfGenerator implements FileGenerator
         $view = $options['view'] ?? 'pdf.default';
 
         // Determina el nombre del archivo
-        $filename = $options['filename'] ?? $this->generateUniqueFilename($options['prefix'] ?? 'document-');
+        $filename = $options['filename'] . '.pdf' ?? $this->generateUniqueFilename($options['prefix'] ?? 'document-');
 
         // Determina la ruta del archivo
         $path = $options['path'] ?? storage_path('app/public/pdf');
