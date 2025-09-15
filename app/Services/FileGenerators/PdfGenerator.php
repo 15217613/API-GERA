@@ -18,7 +18,7 @@ class PdfGenerator implements FileGenerator
     public function generate(array $data, array $options): string
     {
         // Determina la vista
-        $view = $options['view'] ?? 'pdf.default';
+        $template = $options['template'] ?? 'pdf.default';
 
         // Determina el nombre del archivo
         $filename = $options['filename'] . '.pdf' ?? $this->generateUniqueFilename($options['prefix'] ?? 'document-');
@@ -107,7 +107,7 @@ class PdfGenerator implements FileGenerator
         ];
 
         // Carga la vista con los datos
-        $pdf = PDF::loadView($view, $data);
+        $pdf = PDF::loadView($template, $data);
 
         // Establece una contraseña para el PDF
         $pdf->setEncryption($encryption['user'], $encryption['owner'], $encryption['permissions']);
