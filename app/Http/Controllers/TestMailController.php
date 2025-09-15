@@ -88,7 +88,7 @@ class TestMailController extends Controller
 
         // Opciones para generar el PDF
         $options = [
-            'view' => 'pdf.default',
+            'template' => 'pdf.default',
             'filename' => 'report-' . Str::uuid()->toString(),
             // 'path' => storage_path('app/public'),
             'paper_size' => 'a4',
