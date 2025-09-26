@@ -28,16 +28,17 @@ class TestReportController extends Controller
 
         // Opciones para generar el PDF
         $options = [
-            'template' => 'pdf.default',
-            'filename' => 'report-' . Str::uuid()->toString(),
-            // 'path' => storage_path('app/public'),
-            'paper_size' => 'a4',
-            'orientation' => 'landscape',
+            'template' => 'pdf.default', // Plantilla para generar el PDF
+            // 'prefix' => 'report-', // Si se desea agregar un prefijo al nombre del archivo (opcional) solo se usa si no existe el filename
+            'filename' => 'report-' . Str::uuid()->toString(), // Nombre del archivo (opcional)
+            // 'path' => storage_path('app/public'), // Si se desea guardar el archivo en un directorio diferente (opcional)
+            'paper_size' => 'a4', // Tamaño de la hoja (opcional)
+            'orientation' => 'landscape', // Orientación de la hoja (opcional)
             /*'encryption' => [
                 'user' => 'passwordUser',
                 'owner' => 'passwordOwner',
                 'permissions' => ['print', 'modify', 'copy', 'add']
-            ]*/
+            ]*/ // Encriptación del PDF (opcional)
         ];
 
         // Generar y guardar el archivo

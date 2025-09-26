@@ -8,12 +8,24 @@ use Barryvdh\DomPDF\Facade\Pdf as PDF;
 
 class PdfGenerator implements FileGenerator
 {
+
     /**
-     * Genera un PDF, lo guarda en el disco y retorna la ruta del archivo.
+     * Genera un PDF con Barryvdh\DomPDF\Facade\Pdf, lo guarda en el disco y retorna la ruta del archivo.
      *
      * @param array $data Los datos para pasar a la vista.
      * @param array $options Opciones de generación (ej. 'view', 'filename', 'disk').
-     * @return string La ruta del archivo guardado.
+     * @param array $options['template'] |view route
+     * @param array $options['prefix'] |string
+     * @param array $options['filename'] |string
+     * @param array $options['path'] |string
+     * @param array $options['paper_size'] |string
+     * @param array $options['orientation'] |string
+     * @param array $options['encryption'] |array
+     * @param array $options['encryption']['user'] |string
+     * @param array $options['encryption']['owner'] |string
+     * @param array $options['encryption']['permissions'] |array
+     * @param array $options['encryption']['permissions'][] |string
+     * @return string ruta del archivo guardado
      */
     public function generate(array $data, array $options): string
     {
@@ -121,7 +133,7 @@ class PdfGenerator implements FileGenerator
     /**
      * Genera un nombre de archivo único con la extensión .pdf.
      *
-     * @return string
+     * @return string ruta del archivo
      */
     protected function generateUniqueFilename($prefix = 'document'): string
     {
