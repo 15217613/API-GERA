@@ -3,8 +3,11 @@
 namespace App\Providers;
 
 use Carbon\CarbonInterval;
+use Dedoc\Scramble\Scramble;
 use Laravel\Passport\Passport;
 use Illuminate\Support\ServiceProvider;
+use Dedoc\Scramble\Support\Generator\OpenApi;
+use Dedoc\Scramble\Support\Generator\SecurityScheme;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -26,5 +29,26 @@ class AppServiceProvider extends ServiceProvider
 
         // Expiracion del token
         Passport::tokensExpireIn(CarbonInterval::days(1));
+
+        // Configurar la seguridad de la documentacion con bearer
+        /*
+        Scramble::configure()
+        ->withDocumentTransformers(function (OpenApi $openApi) {
+            $openApi->secure(
+                SecurityScheme::http('bearer') // Agregar seguridad a la documentacion con bearer
+
+                // SecurityScheme::apiKey('query', 'api_token'); // Agregar seguridad a la documentacion con api_token
+                // SecurityScheme::http('bearer', 'JWT'); // Agregar seguridad a la documentacion con JWT
+                // SecurityScheme::http('basic'); // Agregar seguridad a la documentacion con basic
+                // SecurityScheme::oauth2()
+                // ->flow('authorizationCode', function (OAuthFlow $flow) {
+                //     $flow
+                //         ->authorizationUrl(config('app.url').'/oauth/authorize')
+                //         ->tokenUrl(config('app.url').'/oauth/token')
+                //         ->addScope('*', 'all');
+                // }); // Agregar seguridad a la documentacion con oauth2
+            );
+        });
+        */
     }
 }
