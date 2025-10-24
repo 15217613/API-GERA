@@ -25,6 +25,8 @@ class User extends Authenticatable implements OAuthenticatable
         'name',
         'email',
         'password',
+        'is_active',
+        'last_login_at',
     ];
 
     /**
@@ -47,6 +49,107 @@ class User extends Authenticatable implements OAuthenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_login_at' => 'datetime',
+            'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Valores por defecto
+     */
+    protected $attributes = [
+        'is_active' => true,
+    ];
+
+    // ======================================
+    // SCOPES
+    // ======================================
+
+    /**
+     * Scope para usuarios activos
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    /**
+     * Scope para usuarios inactivos
+     */
+    public function scopeInactive($query)
+    {
+        return $query->where('is_active', false);
+    }
+
+    /**
+     * Scope para buscar por email
+     */
+    public function scopeByEmail($query, $email)
+    {
+        return $query->where('email', $email);
+    }
+
+    /**
+     * Scope para buscar por nombre
+     */
+    public function scopeByName($query, $name)
+    {
+        return $query->where('name', 'like', "%{$name}%");
+    }
+
+    /**
+     * Scope para usuarios con un rol específico
+     */
+    public function scopeWithRole($query, $role)
+    {
+        return $query->whereHas('roles', function ($q) use ($role) {
+            $q->where('name', $role);
+        });
+    }
+
+    // ======================================
+    // MÉTODOS DE UTILIDAD
+    // ======================================
+
+    /**
+     * Verificar si el usuario es administrador
+     */
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('Admin');
+    }
+
+    /**
+     * Obtener los roles como array
+     */
+    public function getRolesArray(): array
+    {
+        return $this->getRoleNames()->toArray();
+    }
+
+    /**
+     * Obtener los permisos como array
+     */
+    public function getPermissionsArray(): array
+    {
+        return $this->getAllPermissions()->pluck('name')->toArray();
+    }
+
+    /**
+     * Asignar múltiples roles
+     */
+    public function assignMultipleRoles(array $roles): self
+    {
+        $this->syncRoles($roles);
+        return $this;
+    }
+
+    /**
+     * Revocar todos los roles
+     */
+    public function revokeAllRoles(): self
+    {
+        $this->syncRoles([]);
+        return $this;
     }
 }
