@@ -2,14 +2,18 @@
 
 namespace App\Http\Controllers;
 
-use Log;
 use Hash;
+use Http;
 use Validator;
+use Exception;
 use App\Models\User;
+use DateTimeImmutable;
+use Illuminate\Support\Str;
+use Laravel\Passport\Client;
 use Illuminate\Http\Request;
+use App\Http\Requests\AuthRequest;
 
 use App\Services\EmailService;
-use App\Http\Resources\UserResource;
 
 class AuthController extends Controller
 {
@@ -21,62 +25,363 @@ class AuthController extends Controller
     }
 
     /**
-     * Login de usuario
+     * auth.login
      *
-     * POST /api/auth/login
+     * Obtiene un token de acceso para el usuario
+     *
+     * PERSONAL ACCESS TOKEN:
+     * {
+     *   "grant_type": "personal",
+     *   "email": "email@example.com",
+     *   "password": "password-here"
+     * }
+     *
+     * PASSWORD GRANT:
+     * {
+     *   "grant_type": "password",
+     *   "client_id": "client-id-here",
+     *   "client_secret": "client-secret-here",
+     *   "email": "email@example.com",
+     *   "password": "password-here"
+     * }
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function login(Request $request)
+    public function login(AuthRequest $request)
     {
         try {
-            // Validar datos de entrada
-            $request->validate([
-                'email' => ['required', 'string', 'email'],
-                'password' => ['required', 'string', 'min:8'],
-                //'client_id' => ['required', 'string'],
-                //'client_secret' => ['required', 'string'],
-            ]);
+            // Valida grant_type
+            $grantType = $request->input('grant_type', 'personal'); // Por defecto: personal
 
-            // Obtenemos los datos por email
-            $user = User::where('email', $request->email)->firstOrFail();
-
-            // Validamos la contraseña
-            if (Hash::check($request->password, $user->password)) {
-                //$token = $user->createToken('API Access Token');
-
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Login exitoso',
-                    'data' => [
-                        'user' => UserResource::make($user),
-                        'roles' => $user->getRoleNames() ?? [],
-                        'permissions' => $user->getAllPermissions()->pluck('name') ?? [],
-                        //'token' => $token->plainTextToken
-                    ]
-                ]);
-            } else {
+            if (!in_array($grantType, ['personal', 'password'])) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'These credentials do not match our records.'
-                ], 404);
+                    'message' => 'Invalid grant_type. Use: personal or password',
+                    'errors' => [
+                        'grant_type' => ['The grant_type must be: personal or password']
+                    ]
+                ], 422);
             }
-        } catch (\Exception $e) {
-            Log::error('Error en login: ' . $e->getMessage());
 
+            // Obtenemos las reglas de validación
+            $rules = $request->rules();
+
+            // Validamos los datos
+            $validator = Validator::make($request->all(), $rules, [
+                'email.required' => 'Email is required',
+                'email.email' => 'Email must be valid',
+                'password.required' => 'Password is required',
+                'client_id.required' => 'Client ID is required for grant_type password',
+                'client_secret.required' => 'Client secret is required for grant_type password',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // Buscar y validar usuario
+            $user = User::where('email', $request->email)->first();
+
+            if (!$user || !Hash::check($request->password, $user->password)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid credentials'
+                ], 401);
+            }
+
+            // Verificar que el usuario esté activo
+            if (!$user->is_active) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your account has been deactivated'
+                ], 403);
+            }
+
+            // Generar token según grant_type
+            if ($grantType === 'personal') {
+                return $this->handlePersonalGrant($user, $request);
+            } else {
+                return $this->handlePasswordGrant($user, $request);
+            }
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Error al iniciar sesión',
+                'message' => 'Error processing login request',
                 'error' => $e->getMessage()
             ], 500);
         }
     }
 
     /**
-     * Registrar un nuevo usuario
+     * Manejar Personal Access Token Grant
      *
-     * POST /api/auth/register
+     * @param User $user
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function handlePersonalGrant(User $user, Request $request)
+    {
+        try {
+            // Crear Personal Access Token
+            $tokenResult = $user->createToken('Personal Access Token');
+            $accessToken = $tokenResult->accessToken;
+
+            // Actualizar último login
+            $user->update(['last_login_at' => now()]);
+
+            // Obtener roles y permisos
+            $roles = $user->getRoleNames();
+            $permissions = $user->getAllPermissions()->pluck('name');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Successful login',
+                'data' => [
+                    'grant_type' => 'personal',
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'is_active' => $user->is_active,
+                        'roles' => $roles,
+                        'permissions' => $permissions,
+                        'last_login_at' => $user->last_login_at
+                    ],
+                    'access_token' => $accessToken,
+                    'token_type' => 'Bearer',
+                    // Personal access tokens no tienen refresh token
+                ]
+            ], 200);
+
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * Manejar Password Grant con OAuth2
+     *
+     * @param User $user
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    protected function handlePasswordGrant(User $user, Request $request)
+    {
+        try {
+            // Validar que el cliente exista y NO esté revocado
+            $client = Client::where('id', $request->client_id)
+                ->where('revoked', false)
+                ->first();
+
+            if (!$client) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Client not found or revoked'
+                ], 401);
+            }
+
+            // Verificar el client_secret
+            if (!Hash::check($request->client_secret, $client->secret)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Client credentials are invalid'
+                ], 401);
+            }
+
+            // Verificar que el cliente soporte password grant (Passport con UUIDs)
+            if (!in_array('password', $client->grant_types)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'This client does not support password grant_type',
+                    'debug' => [
+                        'client_id' => $client->id,
+                        'grant_types_soportados' => $client->grant_types
+                    ]
+                ], 403);
+            }
+
+            // Hacer request interno a /oauth/token de Passport
+            $response = Http::asForm()->post(url('/oauth/token'), [
+                'grant_type' => 'password',
+                'client_id' => $request->client_id,
+                'client_secret' => $request->client_secret,
+                'username' => $request->email,
+                'password' => $request->password,
+                'scope' => '*',
+            ]);
+
+            if (!$response->successful()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Error al generar token OAuth',
+                    'error' => $response->json()
+                ], $response->status());
+            }
+
+            $tokenData = $response->json();
+
+            // Actualizar último login
+            $user->update(['last_login_at' => now()]);
+
+            // Obtener roles y permisos
+            $roles = $user->getRoleNames();
+            $permissions = $user->getAllPermissions()->pluck('name');
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Successful login',
+                'data' => [
+                    'grant_type' => 'password',
+                    'user' => [
+                        'id' => $user->id,
+                        'name' => $user->name,
+                        'email' => $user->email,
+                        'is_active' => $user->is_active,
+                        'roles' => $roles,
+                        'permissions' => $permissions,
+                        'last_login_at' => $user->last_login_at
+                    ],
+                    'access_token' => $tokenData['access_token'],
+                    'refresh_token' => $tokenData['refresh_token'],
+                    'token_type' => $tokenData['token_type'],
+                    'expires_in' => $tokenData['expires_in'],
+                ]
+            ], 200);
+
+        } catch (Exception $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * auth.refresh
+     *
+     * Refresh Token - Renovar access token usando refresh token
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function refreshToken(Request $request)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'refresh_token' => 'required|string',
+                'client_id' => 'required|string',
+                'client_secret' => 'required|string',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Data validation error',
+                    'errors' => $validator->errors()
+                ], 422);
+            }
+
+            // Buscar refresh token
+            $refreshToken = $this->refreshTokenRepository->find($request->refresh_token);
+
+            if (!$refreshToken || $refreshToken->revoked) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid or revoked refresh token'
+                ], 401);
+            }
+
+            // Verificar expiración
+            if ($refreshToken->expires_at < now()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Refresh token has expired'
+                ], 401);
+            }
+
+            // Obtener el access token original
+            $oldToken = $this->tokenRepository->find($refreshToken->access_token_id);
+
+            if (!$oldToken) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Access token not found'
+                ], 404);
+            }
+
+            // Validar cliente
+            $client = Client::where('id', $request->client_id)
+                ->where('revoked', false)
+                ->first();
+
+            if (!$client || $client->id !== $oldToken->client_id) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid client'
+                ], 401);
+            }
+
+            // Verificar client_secret
+            if (!Hash::check($request->client_secret, $client->secret)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Invalid client credentials'
+                ], 401);
+            }
+
+            // Revocar tokens antiguos
+            $this->tokenRepository->revokeAccessToken($oldToken->id);
+            $this->refreshTokenRepository->revokeRefreshToken($refreshToken->id);
+
+            // Crear nuevos tokens
+            $expiresAt = new DateTimeImmutable();
+            $expiresAt = $expiresAt->add(new \DateInterval('PT1H')); // 1 hora
+
+            $newToken = $this->tokenRepository->create([
+                'id' => Str::uuid()->toString(),
+                'user_id' => $oldToken->user_id,
+                'client_id' => $client->id,
+                'scopes' => $oldToken->scopes,
+                'revoked' => false,
+                'expires_at' => $expiresAt,
+            ]);
+
+            $refreshTokenExpiresAt = new DateTimeImmutable();
+            $refreshTokenExpiresAt = $refreshTokenExpiresAt->add(new \DateInterval('P30D')); // 30 días
+
+            $newRefreshToken = $this->refreshTokenRepository->create([
+                'id' => Str::random(40),
+                'access_token_id' => $newToken->id,
+                'revoked' => false,
+                'expires_at' => $refreshTokenExpiresAt,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Token refreshed successfully',
+                'data' => [
+                    'access_token' => $newToken->id,
+                    'refresh_token' => $newRefreshToken->id,
+                    'token_type' => 'Bearer',
+                    'expires_in' => 3600,
+                ]
+            ], 200);
+
+        } catch (Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Error refreshing token',
+                'error' => $e->getMessage()
+            ], 500);
+        }
+    }
+
+    /**
+     * auth.register
+     *
+     * Registrar un nuevo usuario
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -88,7 +393,7 @@ class AuthController extends Controller
             if ($request->fails()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Error en la validación de datos',
+                    'message' => 'Data validation error',
                     'errors' => $request->errors()
                 ], 422);
             }
@@ -121,11 +426,9 @@ class AuthController extends Controller
                 ]
             );
 
-            Log::info("Nuevo usuario registrado: {$user->email}");
-
             return response()->json([
                 'success' => true,
-                'message' => 'Usuario registrado exitosamente. Por favor, verifica tu correo electrónico.',
+                'message' => 'User registered successfully. Please check your email for verification.',
                 'data' => [
                     'id' => $user->id,
                     'name' => $user->name,
@@ -134,9 +437,7 @@ class AuthController extends Controller
                 ]
             ], 201);
 
-        } catch (\Exception $e) {
-            Log::error('Error en registro de usuario: ' . $e->getMessage());
-
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al registrar el usuario',
@@ -146,9 +447,9 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout del usuario
+     * auth.logout
      *
-     * POST /api/auth/logout
+     * Logout del usuario
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -160,16 +461,12 @@ class AuthController extends Controller
             $user = $request->user();
             $user->token()->revoke();
 
-            Log::info("Usuario {$user->email} cerró sesión");
-
             return response()->json([
                 'success' => true,
                 'message' => 'Sesión cerrada exitosamente'
             ], 200);
 
-        } catch (\Exception $e) {
-            Log::error('Error en logout: ' . $e->getMessage());
-
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cerrar sesión',
@@ -179,9 +476,9 @@ class AuthController extends Controller
     }
 
     /**
-     * Obtener información del usuario autenticado
+     * auth.me
      *
-     * GET /api/auth/me
+     * Obtener información del usuario autenticado
      *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -207,9 +504,7 @@ class AuthController extends Controller
                 'permissions' => $permissions,
             ], 200);
 
-        } catch (\Exception $e) {
-            Log::error('Error al obtener información del usuario autenticado: ' . $e->getMessage());
-
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al obtener información del usuario autenticado',
@@ -256,8 +551,6 @@ class AuthController extends Controller
             // Actualizar usuario
             $user->update($request->only('name', 'phone', 'address'));
 
-            Log::info("Usuario {$user->email} actualizó su perfil");
-
             return response()->json([
                 'success' => true,
                 'message' => 'Perfil actualizado exitosamente',
@@ -270,9 +563,7 @@ class AuthController extends Controller
                 ]
             ], 200);
 
-        } catch (\Exception $e) {
-            Log::error('Error al actualizar perfil: ' . $e->getMessage());
-
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al actualizar perfil',
@@ -331,16 +622,12 @@ class AuthController extends Controller
             // Revocar todos los tokens anteriores
             $user->tokens()->delete();
 
-            Log::info("Usuario {$user->email} cambió su contraseña");
-
             return response()->json([
                 'success' => true,
                 'message' => 'Contraseña actualizada exitosamente. Inicia sesión nuevamente.'
             ], 200);
 
-        } catch (\Exception $e) {
-            Log::error('Error al cambiar contraseña: ' . $e->getMessage());
-
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al cambiar contraseña',
@@ -411,16 +698,12 @@ class AuthController extends Controller
                 ]
             );
 
-            Log::info("Solicitud de restablecimiento de contraseña para: {$user->email}");
-
             return response()->json([
                 'success' => true,
                 'message' => 'Si el correo existe en nuestro sistema, recibirás instrucciones de restablecimiento'
             ], 200);
 
-        } catch (\Exception $e) {
-            Log::error('Error en olvido de contraseña: ' . $e->getMessage());
-
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al procesar solicitud',
@@ -485,16 +768,12 @@ class AuthController extends Controller
             // Eliminar token de cache
             \Illuminate\Support\Facades\Cache::forget("password_reset_{$request->token}");
 
-            Log::info("Contraseña restablecida para: {$user->email}");
-
             return response()->json([
                 'success' => true,
                 'message' => 'Contraseña restablecida exitosamente. Inicia sesión con tu nueva contraseña.'
             ], 200);
 
-        } catch (\Exception $e) {
-            Log::error('Error en restablecimiento de contraseña: ' . $e->getMessage());
-
+        } catch (Exception $e) {
             return response()->json([
                 'success' => false,
                 'message' => 'Error al restablecer contraseña',

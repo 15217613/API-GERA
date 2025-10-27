@@ -14,7 +14,6 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/auth/login', [AuthController::class, 'login']);
 Route::post('/auth/register', [AuthController::class, 'register']);
-Route::post('/auth/logout', [AuthController::class, 'logout']);
 
 Route::middleware('auth:api')->group(function () {
     Route::apiResource('roles', RoleController::class);
@@ -22,6 +21,8 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('permissions', PermissionController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
+    Route::post('/auth/logout', [AuthController::class, 'logout']);
+    Route::post('/auth/refresh', [AuthController::class, 'refreshToken']);
 });
 
 
