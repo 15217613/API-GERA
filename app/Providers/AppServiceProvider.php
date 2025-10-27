@@ -16,7 +16,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        // Deshabilitar rutas de Passport (Habilitar si se usa grant_type password)
+        // Passport::ignoreRoutes();
     }
 
     /**
@@ -27,8 +28,14 @@ class AppServiceProvider extends ServiceProvider
         // Habilitar el grant_type password
         Passport::enablePasswordGrant();
 
-        // Expiracion del token
+        // Expiracion del token personal
+        Passport::personalAccessTokensExpireIn(CarbonInterval::days(1));
+
+        // Expiracion del token password
         Passport::tokensExpireIn(CarbonInterval::days(1));
+
+        // Expiracion del refresh token
+        Passport::refreshTokensExpireIn(CarbonInterval::days(30));
 
         // Configurar la seguridad de la documentacion con bearer
         /*
