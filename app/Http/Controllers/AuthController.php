@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\UserRequest;
 use App\Http\Resources\UserResource;
+use DB;
 use Hash;
 use Http;
 use Cache;
+use Spatie\Permission\Models\Role;
 use Validator;
 use Exception;
 use App\Models\User;
@@ -387,61 +390,72 @@ class AuthController extends Controller
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function register(Request $request)
+    public function register(UserRequest $request)
     {
-        try {
-            // Retornar errores de validación
-            if ($request->fails()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Data validation error',
-                    'errors' => $request->errors()
-                ], 422);
-            }
+        // Usar transacción para asegurar que todo se ejecute correctamente
+        DB::beginTransaction();
 
-            // Crear nuevo usuario
+        try {
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'phone' => $request->phone,
-                'address' => $request->address,
+                'is_active' => $request->is_active ?? true,
             ]);
 
-            // Asignar rol por defecto (user)
-            if ($user && method_exists($user, 'assignRole')) {
-                $user->assignRole('user');
+            // Si se proporciona el rol
+            if ($request->has('role') && $request->role) {
+                // Verificar que el rol existe
+                $roleExists = Role::where('name', $request->role)->exists();
+
+                // Si el rol no existe, se retorna un error
+                if (!$roleExists) {
+                    DB::rollBack();
+
+                    return response()->json([
+                        'success' => false,
+                        'message' => "El rol '{$request->role}' no existe"
+                    ], 422);
+                }
+
+                // Asignar rol al usuario
+                $user->assignRole($request->role);
+            } else {
+                // Si no se proporciona rol, asigna rol por defecto 'User'
+                $user->assignRole('User');
             }
 
-            // Enviar correo de bienvenida
-            $this->emailService->sendBladeMail(
-                $user->email,
-                'Bienvenido a ' . config('app.name'),
-                'emails.welcome',
-                ['user' => $user],
-                [
-                    'from' => [
-                        'email' => config('mail.from.address'),
-                        'name' => config('app.name')
-                    ]
-                ]
-            );
+            // Recargar relaciones para incluir en la respuesta
+            $user->load('roles', 'permissions');
 
-            return response()->json([
-                'success' => true,
-                'message' => 'User registered successfully. Please check your email for verification.',
-                'data' => [
-                    'id' => $user->id,
-                    'name' => $user->name,
-                    'email' => $user->email,
-                    'created_at' => $user->created_at
-                ]
-            ], 201);
+            // Crear Personal Access Token
+            $tokenResult = $user->createToken('Personal Access Token');
+            $accessToken = $tokenResult->accessToken;
+
+            // Actualizar último login
+            $user->update(['last_login_at' => now()]);
+
+            // Confirmar transacción
+            DB::commit();
+
+            return UserResource::make($user)
+                ->additional([
+                    'success' => true,
+                    'message' => 'Usuario creado exitosamente',
+                    'data' => [
+                        'access_token' => $accessToken
+                    ]
+                ])
+                ->response()
+                ->setStatusCode(201);
 
         } catch (Exception $e) {
+            // Revertir cambios si hay error
+            DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Error al registrar el usuario',
+                'message' => 'Error al crear usuario',
                 'error' => $e->getMessage()
             ], 500);
         }
