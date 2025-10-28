@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use Hash;
 use Http;
+use Cache;
 use Validator;
 use Exception;
 use App\Models\User;
-use DateTimeImmutable;
 use Illuminate\Support\Str;
 use Laravel\Passport\Client;
 use Illuminate\Http\Request;
@@ -495,13 +496,11 @@ class AuthController extends Controller
                 ], 401);
             }
 
-            $roles = $user->getRoleNames();
-            $permissions = $user->getPermissionsViaRoles()->pluck('name');
-
             return response()->json([
-                'user' => $user,
-                'roles' => $roles,
-                'permissions' => $permissions,
+                'success' => true,
+                'data' => [
+                    new UserResource($user),
+                ]
             ], 200);
 
         } catch (Exception $e) {
@@ -672,10 +671,10 @@ class AuthController extends Controller
             }
 
             // Generar token de restablecimiento
-            $resetToken = \Illuminate\Support\Str::random(64);
+            $resetToken = Str::random(64);
 
             // Guardar token en cache (válido por 1 hora)
-            \Illuminate\Support\Facades\Cache::put(
+            Cache::put(
                 "password_reset_{$resetToken}",
                 $user->id,
                 \Carbon\Carbon::now()->addHour()
@@ -738,7 +737,7 @@ class AuthController extends Controller
             }
 
             // Verificar token
-            $userId = \Illuminate\Support\Facades\Cache::get("password_reset_{$request->token}");
+            $userId = Cache::get("password_reset_{$request->token}");
 
             if (!$userId) {
                 return response()->json([
@@ -766,7 +765,7 @@ class AuthController extends Controller
             $user->tokens()->delete();
 
             // Eliminar token de cache
-            \Illuminate\Support\Facades\Cache::forget("password_reset_{$request->token}");
+            Cache::forget("password_reset_{$request->token}");
 
             return response()->json([
                 'success' => true,
