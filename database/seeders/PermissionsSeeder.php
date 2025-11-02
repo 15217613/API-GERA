@@ -45,6 +45,11 @@ class PermissionsSeeder extends Seeder
             'view-condicion-detallada',
             'update-condicion-detallada',
             'delete-condicion-detallada',
+
+            'create-sismico-no-estructural',
+            'view-sismico-no-estructural',
+            'update-sismico-no-estructural',
+            'delete-sismico-no-estructural',
         ];
 
         // Crear permisos
