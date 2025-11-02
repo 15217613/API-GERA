@@ -25,6 +25,10 @@ class PermissionsSeeder extends Seeder
             'view-users',
             'update-users',
             'delete-users',
+            'create-accion-requerida',
+            'view-accion-requerida',
+            'update-accion-requerida',
+            'delete-accion-requerida',
         ];
 
         // Crear permisos
