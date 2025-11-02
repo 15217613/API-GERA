@@ -50,6 +50,11 @@ class PermissionsSeeder extends Seeder
             'view-sismico-no-estructural',
             'update-sismico-no-estructural',
             'delete-sismico-no-estructural',
+
+            'create-grado-danio',
+            'view-grado-danio',
+            'update-grado-danio',
+            'delete-grado-danio',
         ];
 
         // Crear permisos

@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\GradoDanioController;
 use App\Http\Controllers\CondicionBaseController;
 use App\Http\Controllers\SNoEstructuralController;
 use App\Http\Controllers\AccionRequeridaController;
@@ -30,6 +31,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('condicion-base', CondicionBaseController::class);
     Route::apiResource('condicion-detallada', CondicionDetalladaController::class);
     Route::apiResource('s-no-estructural', SNoEstructuralController::class);
+    Route::apiResource('grado-danio', GradoDanioController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
