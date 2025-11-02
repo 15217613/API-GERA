@@ -40,6 +40,11 @@ class PermissionsSeeder extends Seeder
             'view-condicion-base',
             'update-condicion-base',
             'delete-condicion-base',
+
+            'create-condicion-detallada',
+            'view-condicion-detallada',
+            'update-condicion-detallada',
+            'delete-condicion-detallada',
         ];
 
         // Crear permisos
