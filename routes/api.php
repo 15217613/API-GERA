@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\PermissionController;
+use App\Http\Controllers\CondicionBaseController;
 use App\Http\Controllers\AccionRequeridaController;
 use App\Http\Controllers\CondicionNoEstructuralController;
 
@@ -24,6 +25,7 @@ Route::middleware('auth:api')->group(function () {
 
     Route::apiResource('accion-requerida', AccionRequeridaController::class);
     Route::apiResource('condicion-no-estructural', CondicionNoEstructuralController::class);
+    Route::apiResource('condicion-base', CondicionBaseController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
