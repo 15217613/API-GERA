@@ -75,6 +75,11 @@ class PermissionsSeeder extends Seeder
             'view-ocupacion',
             'update-ocupacion',
             'delete-ocupacion',
+
+            'create-otro-riesgo',
+            'view-otro-riesgo',
+            'update-otro-riesgo',
+            'delete-otro-riesgo',
         ];
 
         // Crear permisos

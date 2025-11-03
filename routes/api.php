@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OcupacionController;
+use App\Http\Controllers\OtroRiesgoController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\GradoDanioController;
 use App\Http\Controllers\ModificadorController;
@@ -40,6 +41,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('irregularidad-vertical', IrregularidadVerticalController::class);
     Route::apiResource('modificador', ModificadorController::class);
     Route::apiResource('ocupacion', OcupacionController::class);
+    Route::apiResource('otro-riesgo', OtroRiesgoController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
