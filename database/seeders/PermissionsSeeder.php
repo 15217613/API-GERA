@@ -55,6 +55,11 @@ class PermissionsSeeder extends Seeder
             'view-grado-danio',
             'update-grado-danio',
             'delete-grado-danio',
+
+            'create-irregularidad-horizontal',
+            'view-irregularidad-horizontal',
+            'update-irregularidad-horizontal',
+            'delete-irregularidad-horizontal',
         ];
 
         // Crear permisos
