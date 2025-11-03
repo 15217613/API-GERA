@@ -80,6 +80,11 @@ class PermissionsSeeder extends Seeder
             'view-otro-riesgo',
             'update-otro-riesgo',
             'delete-otro-riesgo',
+
+            'create-porcentaje-danio',
+            'view-porcentaje-danio',
+            'update-porcentaje-danio',
+            'delete-porcentaje-danio',
         ];
 
         // Crear permisos

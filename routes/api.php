@@ -14,6 +14,7 @@ use App\Http\Controllers\ModificadorController;
 use App\Http\Controllers\CondicionBaseController;
 use App\Http\Controllers\SNoEstructuralController;
 use App\Http\Controllers\AccionRequeridaController;
+use App\Http\Controllers\PorcentajeDanioController;
 use App\Http\Controllers\CondicionDetalladaController;
 use App\Http\Controllers\IrregularidadVerticalController;
 use App\Http\Controllers\CondicionNoEstructuralController;
@@ -42,6 +43,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('modificador', ModificadorController::class);
     Route::apiResource('ocupacion', OcupacionController::class);
     Route::apiResource('otro-riesgo', OtroRiesgoController::class);
+    Route::apiResource('porcentaje-danio', PorcentajeDanioController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
