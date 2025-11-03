@@ -12,6 +12,7 @@ use App\Http\Controllers\CondicionBaseController;
 use App\Http\Controllers\SNoEstructuralController;
 use App\Http\Controllers\AccionRequeridaController;
 use App\Http\Controllers\CondicionDetalladaController;
+use App\Http\Controllers\IrregularidadVerticalController;
 use App\Http\Controllers\CondicionNoEstructuralController;
 use App\Http\Controllers\IrregularidadHorizontalController;
 
@@ -34,6 +35,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('s-no-estructural', SNoEstructuralController::class);
     Route::apiResource('grado-danio', GradoDanioController::class);
     Route::apiResource('irregularidad-horizontal', IrregularidadHorizontalController::class);
+    Route::apiResource('irregularidad-vertical', IrregularidadVerticalController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
