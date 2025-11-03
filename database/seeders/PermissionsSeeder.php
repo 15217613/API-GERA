@@ -70,6 +70,11 @@ class PermissionsSeeder extends Seeder
             'view-modificador',
             'update-modificador',
             'delete-modificador',
+
+            'create-ocupacion',
+            'view-ocupacion',
+            'update-ocupacion',
+            'delete-ocupacion',
         ];
 
         // Crear permisos
