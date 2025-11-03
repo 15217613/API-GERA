@@ -16,6 +16,7 @@ use App\Http\Controllers\CondicionBaseController;
 use App\Http\Controllers\SNoEstructuralController;
 use App\Http\Controllers\AccionRequeridaController;
 use App\Http\Controllers\PorcentajeDanioController;
+use App\Http\Controllers\TipoConstruccionController;
 use App\Http\Controllers\CondicionDetalladaController;
 use App\Http\Controllers\SistemaConstruccionController;
 use App\Http\Controllers\IrregularidadVerticalController;
@@ -48,6 +49,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('porcentaje-danio', PorcentajeDanioController::class);
     Route::apiResource('senializacion', SenializacionController::class);
     Route::apiResource('sistema-construccion', SistemaConstruccionController::class);
+    Route::apiResource('tipo-construccion', TipoConstruccionController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);

@@ -95,6 +95,11 @@ class PermissionsSeeder extends Seeder
             'view-sistema-construccion',
             'update-sistema-construccion',
             'delete-sistema-construccion',
+
+            'create-tipo-construccion',
+            'view-tipo-construccion',
+            'update-tipo-construccion',
+            'delete-tipo-construccion',
         ];
 
         // Crear permisos
