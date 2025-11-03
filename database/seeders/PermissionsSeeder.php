@@ -90,6 +90,11 @@ class PermissionsSeeder extends Seeder
             'view-senializacion',
             'update-senializacion',
             'delete-senializacion',
+
+            'create-sistema-construccion',
+            'view-sistema-construccion',
+            'update-sistema-construccion',
+            'delete-sistema-construccion',
         ];
 
         // Crear permisos
