@@ -65,6 +65,11 @@ class PermissionsSeeder extends Seeder
             'view-irregularidad-vertical',
             'update-irregularidad-vertical',
             'delete-irregularidad-vertical',
+
+            'create-modificador',
+            'view-modificador',
+            'update-modificador',
+            'delete-modificador',
         ];
 
         // Crear permisos
