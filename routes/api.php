@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\DireccionController;
 use App\Http\Controllers\OcupacionController;
 use App\Http\Controllers\TipoSueloController;
 use App\Http\Controllers\OtroRiesgoController;
@@ -52,6 +53,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('sistema-construccion', SistemaConstruccionController::class);
     Route::apiResource('tipo-construccion', TipoConstruccionController::class);
     Route::apiResource('tipo-suelo', TipoSueloController::class);
+    Route::apiResource('direccion', DireccionController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
