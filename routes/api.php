@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\OcupacionController;
+use App\Http\Controllers\TipoSueloController;
 use App\Http\Controllers\OtroRiesgoController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\GradoDanioController;
@@ -50,6 +51,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('senializacion', SenializacionController::class);
     Route::apiResource('sistema-construccion', SistemaConstruccionController::class);
     Route::apiResource('tipo-construccion', TipoConstruccionController::class);
+    Route::apiResource('tipo-suelo', TipoSueloController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
