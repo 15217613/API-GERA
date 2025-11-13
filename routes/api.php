@@ -13,6 +13,7 @@ use App\Http\Controllers\OtroRiesgoController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\GradoDanioController;
 use App\Http\Controllers\ModificadorController;
+use App\Http\Controllers\EdificacionController;
 use App\Http\Controllers\SenializacionController;
 use App\Http\Controllers\CondicionBaseController;
 use App\Http\Controllers\SNoEstructuralController;
@@ -54,6 +55,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('tipo-construccion', TipoConstruccionController::class);
     Route::apiResource('tipo-suelo', TipoSueloController::class);
     Route::apiResource('direccion', DireccionController::class);
+    Route::apiResource('edificacion', EdificacionController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);

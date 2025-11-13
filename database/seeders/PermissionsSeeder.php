@@ -110,6 +110,11 @@ class PermissionsSeeder extends Seeder
             'view-direccion',
             'update-direccion',
             'delete-direccion',
+
+            'create-edificacion',
+            'view-edificacion',
+            'update-edificacion',
+            'delete-edificacion',
         ];
 
         // Crear permisos
