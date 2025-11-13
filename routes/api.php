@@ -22,6 +22,7 @@ use App\Http\Controllers\PorcentajeDanioController;
 use App\Http\Controllers\TipoConstruccionController;
 use App\Http\Controllers\CondicionDetalladaController;
 use App\Http\Controllers\SistemaConstruccionController;
+use App\Http\Controllers\EvaluacionPresismicaController;
 use App\Http\Controllers\IrregularidadVerticalController;
 use App\Http\Controllers\CondicionNoEstructuralController;
 use App\Http\Controllers\IrregularidadHorizontalController;
@@ -56,6 +57,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('tipo-suelo', TipoSueloController::class);
     Route::apiResource('direccion', DireccionController::class);
     Route::apiResource('edificacion', EdificacionController::class);
+    Route::apiResource('evaluacion-presismica', EvaluacionPresismicaController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);
