@@ -125,6 +125,11 @@ class PermissionsSeeder extends Seeder
             'view-evaluacion-postsismica',
             'update-evaluacion-postsismica',
             'delete-evaluacion-postsismica',
+
+            'create-e-postsismica-detallada',
+            'view-e-postsismica-detallada',
+            'update-e-postsismica-detallada',
+            'delete-e-postsismica-detallada',
         ];
 
         // Crear permisos
