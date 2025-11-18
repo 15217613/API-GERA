@@ -16,6 +16,7 @@ use App\Http\Controllers\ModificadorController;
 use App\Http\Controllers\EdificacionController;
 use App\Http\Controllers\SenializacionController;
 use App\Http\Controllers\CondicionBaseController;
+use App\Http\Controllers\CObservadaBaseController;
 use App\Http\Controllers\SNoEstructuralController;
 use App\Http\Controllers\AccionRequeridaController;
 use App\Http\Controllers\PorcentajeDanioController;
@@ -66,6 +67,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('e-postsismica-detallada', EPostsismicaDetalladaController::class);
     Route::apiResource('e-presismica-detallada', EPresismicaDetalladaController::class);
     Route::apiResource('riesgo-no-estructural', RiesgoNoEstructuralController::class);
+    Route::apiResource('c-observada-base', CObservadaBaseController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);

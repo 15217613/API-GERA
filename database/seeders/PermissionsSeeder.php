@@ -140,6 +140,11 @@ class PermissionsSeeder extends Seeder
             'view-riesgo-no-estructural',
             'update-riesgo-no-estructural',
             'delete-riesgo-no-estructural',
+
+            'create-c-observada-base',
+            'view-c-observada-base',
+            'update-c-observada-base',
+            'delete-c-observada-base',
         ];
 
         // Crear permisos
