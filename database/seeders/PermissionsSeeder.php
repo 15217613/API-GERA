@@ -145,6 +145,11 @@ class PermissionsSeeder extends Seeder
             'view-c-observada-base',
             'update-c-observada-base',
             'delete-c-observada-base',
+
+            'create-c-observada-det',
+            'view-c-observada-det',
+            'update-c-observada-det',
+            'delete-c-observada-det',
         ];
 
         // Crear permisos
