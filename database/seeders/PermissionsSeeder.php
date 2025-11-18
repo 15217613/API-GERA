@@ -135,6 +135,11 @@ class PermissionsSeeder extends Seeder
             'view-e-presismica-detallada',
             'update-e-presismica-detallada',
             'delete-e-presismica-detallada',
+
+            'create-riesgo-no-estructural',
+            'view-riesgo-no-estructural',
+            'update-riesgo-no-estructural',
+            'delete-riesgo-no-estructural',
         ];
 
         // Crear permisos
