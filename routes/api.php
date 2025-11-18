@@ -22,6 +22,7 @@ use App\Http\Controllers\PorcentajeDanioController;
 use App\Http\Controllers\TipoConstruccionController;
 use App\Http\Controllers\CondicionDetalladaController;
 use App\Http\Controllers\SistemaConstruccionController;
+use App\Http\Controllers\EPresismicaDetalladaController;
 use App\Http\Controllers\EvaluacionPresismicaController;
 use App\Http\Controllers\EPostsismicaDetalladaController;
 use App\Http\Controllers\EvaluacionPostsismicaController;
@@ -62,6 +63,7 @@ Route::middleware('auth:api')->group(function () {
     Route::apiResource('evaluacion-presismica', EvaluacionPresismicaController::class);
     Route::apiResource('evaluacion-postsismica', EvaluacionPostsismicaController::class);
     Route::apiResource('e-postsismica-detallada', EPostsismicaDetalladaController::class);
+    Route::apiResource('e-presismica-detallada', EPresismicaDetalladaController::class);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
     Route::post('/auth/logout', [AuthController::class, 'logout']);

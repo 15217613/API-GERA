@@ -130,6 +130,11 @@ class PermissionsSeeder extends Seeder
             'view-e-postsismica-detallada',
             'update-e-postsismica-detallada',
             'delete-e-postsismica-detallada',
+
+            'create-e-presismica-detallada',
+            'view-e-presismica-detallada',
+            'update-e-presismica-detallada',
+            'delete-e-presismica-detallada',
         ];
 
         // Crear permisos
