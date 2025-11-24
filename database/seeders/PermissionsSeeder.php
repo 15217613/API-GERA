@@ -150,6 +150,11 @@ class PermissionsSeeder extends Seeder
             'view-c-observada-det',
             'update-c-observada-det',
             'delete-c-observada-det',
+
+            'create-evaluacion-presismica-c-no-estructural',
+            'view-evaluacion-presismica-c-no-estructural',
+            'update-evaluacion-presismica-c-no-estructural',
+            'delete-evaluacion-presismica-c-no-estructural',
         ];
 
         // Crear permisos
