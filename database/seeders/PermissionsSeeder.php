@@ -160,6 +160,11 @@ class PermissionsSeeder extends Seeder
             'view-evaluacion-presismica-detallada-modificador',
             'update-evaluacion-presismica-detallada-modificador',
             'delete-evaluacion-presismica-detallada-modificador',
+
+            'create-evaluacion-presismica-accion-requerida',
+            'view-evaluacion-presismica-accion-requerida',
+            'update-evaluacion-presismica-accion-requerida',
+            'delete-evaluacion-presismica-accion-requerida',
     ];
 
         // Crear permisos
