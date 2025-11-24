@@ -155,7 +155,12 @@ class PermissionsSeeder extends Seeder
             'view-evaluacion-presismica-c-no-estructural',
             'update-evaluacion-presismica-c-no-estructural',
             'delete-evaluacion-presismica-c-no-estructural',
-        ];
+
+            'create-evaluacion-presismica-detallada-modificador',
+            'view-evaluacion-presismica-detallada-modificador',
+            'update-evaluacion-presismica-detallada-modificador',
+            'delete-evaluacion-presismica-detallada-modificador',
+    ];
 
         // Crear permisos
         foreach ($permissions as $permission) {
