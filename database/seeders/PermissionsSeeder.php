@@ -170,6 +170,11 @@ class PermissionsSeeder extends Seeder
             'view-evaluacion-presismica-evaluacion-detallada',
             'update-evaluacion-presismica-evaluacion-detallada',
             'delete-evaluacion-presismica-evaluacion-detallada',
+
+            'create-evaluacion-presismica-irregularidad-horizontal',
+            'view-evaluacion-presismica-irregularidad-horizontal',
+            'update-evaluacion-presismica-irregularidad-horizontal',
+            'delete-evaluacion-presismica-irregularidad-horizontal',
     ];
 
         // Crear permisos
