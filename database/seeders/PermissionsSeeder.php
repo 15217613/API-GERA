@@ -195,7 +195,12 @@ class PermissionsSeeder extends Seeder
             'view-evaluacion-postsismica-evaluacion-detallada',
             'update-evaluacion-postsismica-evaluacion-detallada',
             'delete-evaluacion-postsismica-evaluacion-detallada',
-    ];
+
+            'create-evaluacion-postsismica-sistema-construccion',
+            'view-evaluacion-postsismica-sistema-construccion',
+            'update-evaluacion-postsismica-sistema-construccion',
+            'delete-evaluacion-postsismica-sistema-construccion',
+        ];
 
         // Crear permisos
         foreach ($permissions as $permission) {
