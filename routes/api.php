@@ -31,13 +31,14 @@ use App\Http\Controllers\EPostsismicaDetalladaController;
 use App\Http\Controllers\EvaluacionPostsismicaController;
 use App\Http\Controllers\IrregularidadVerticalController;
 use App\Http\Controllers\CondicionNoEstructuralController;
-use App\Http\Controllers\EvaluacionPostsismicaCondicionObservadaBaseController;
 use App\Http\Controllers\IrregularidadHorizontalController;
 use App\Http\Controllers\EvaluacionPresismicaOtroRiesgoController;
 use App\Http\Controllers\EvaluacionPresismicaAccionRequeridaController;
 use App\Http\Controllers\EvaluacionPresismicaEvaluacionDetalladaController;
+use App\Http\Controllers\EvaluacionPostsismicaEvaluacionDetalladaController;
 use App\Http\Controllers\EvaluacionPresismicaDetalladaModificadorController;
 use App\Http\Controllers\EvaluacionPresismicaIrregularidadVerticalController;
+use App\Http\Controllers\EvaluacionPostsismicaCondicionObservadaBaseController;
 use App\Http\Controllers\EvaluacionPresismicaDetalladaCNoEstructuralController;
 use App\Http\Controllers\EvaluacionPresismicaIrregularidadHorizontalController;
 
@@ -102,6 +103,10 @@ Route::middleware('auth:api')->group(function () {
 
     Route::apiResource('evaluacion-postsismica-condicion-observada-base', EvaluacionPostsismicaCondicionObservadaBaseController::class)->parameters([
         'evaluacion-postsismica-condicion-observada-base' => 'postsismica_cob'
+    ]);
+
+    Route::apiResource('evaluacion-postsismica-evaluacion-detallada', EvaluacionPostsismicaEvaluacionDetalladaController::class)->parameters([
+        'evaluacion-postsismica-evaluacion-detallada' => 'postsismica_ed'
     ]);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
