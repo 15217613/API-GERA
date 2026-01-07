@@ -205,6 +205,11 @@ class PermissionsSeeder extends Seeder
             'view-edificacion-evaluacion-postsismica',
             'update-edificacion-evaluacion-postsismica',
             'delete-edificacion-evaluacion-postsismica',
+
+            'create-edificacion-evaluacion-presismica',
+            'view-edificacion-evaluacion-presismica',
+            'update-edificacion-evaluacion-presismica',
+            'delete-edificacion-evaluacion-presismica',
         ];
 
         // Crear permisos
