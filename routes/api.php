@@ -31,6 +31,8 @@ use App\Http\Controllers\EPostsismicaDetalladaController;
 use App\Http\Controllers\EvaluacionPostsismicaController;
 use App\Http\Controllers\IrregularidadVerticalController;
 use App\Http\Controllers\CondicionNoEstructuralController;
+use App\Http\Controllers\EdificacionEvaluacionPostsismicaController;
+use App\Http\Controllers\EdificacionEvaluacionPresismicaController;
 use App\Http\Controllers\IrregularidadHorizontalController;
 use App\Http\Controllers\EvaluacionPresismicaOtroRiesgoController;
 use App\Http\Controllers\EvaluacionPresismicaAccionRequeridaController;
@@ -112,6 +114,14 @@ Route::middleware('auth:api')->group(function () {
 
     Route::apiResource('evaluacion-postsismica-sistema-construccion', EvaluacionPostsismicaSistemaConstruccionController::class)->parameters([
         'evaluacion-postsismica-sistema-construccion' => 'postsismica_sc'
+    ]);
+
+    Route::apiResource('edificacion-evaluacion-postsismica', EdificacionEvaluacionPostsismicaController::class)->parameters([
+        'edificacion-evaluacion-postsismica' => 'edificacion_evaluacion_post'
+    ]);
+
+    Route::apiResource('edificacion-evaluacion-presismica', EdificacionEvaluacionPresismicaController::class)->parameters([
+        'edificacion-evaluacion-presismica' => 'edificacion_evaluacion_pre'
     ]);
 
     Route::get('/auth/me', [AuthController::class, 'me']);
